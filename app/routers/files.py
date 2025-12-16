@@ -24,8 +24,8 @@ def upload_to_cloudinary(file: UploadFile):
         file.file.seek(0)
         file_url = result.get("secure_url")
         file_size = result.get("bytes")
-        public_id = result.get("public_id")  # add this
-        return file_url, file_size, public_id  # now returns 3 values
+        public_id = result.get("public_id") 
+        return file_url, file_size, public_id  
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
 
@@ -49,10 +49,8 @@ def upload_file(
     if not current_user or not current_user.id:
         raise HTTPException(status_code=401, detail="User not authenticated properly")
 
-    # Upload to Cloudinary and get public_id
     file_url, file_size, public_id = upload_to_cloudinary(file)
     
-    # Save all file info including public_id
     db_file = FileModel(
         filename=file.filename,
         file_type=file.content_type,
@@ -121,19 +119,15 @@ def update_file(
             detail=f"A file with this content already exists (ID: {existing_file.id})"
         )
     
-    # Delete old file from Cloudinary using stored public_id
     delete_from_cloudinary(db_file.public_id)
-    
-    # Upload new file and get public_id
     file_url, file_size, public_id = upload_to_cloudinary(file)
     
-    # Update database record
     db_file.filename = file.filename
     db_file.file_type = file.content_type
     db_file.file_url = file_url
     db_file.file_size = file_size
     db_file.file_hash = new_file_hash
-    db_file.public_id = public_id  # <-- store new public_id
+    db_file.public_id = public_id  
     
     db.commit()
     db.refresh(db_file)

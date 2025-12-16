@@ -14,7 +14,3 @@ app.include_router(files.router)
 async def startup_event():
     setup_cloudinary()
     Base.metadata.create_all(bind=engine)
-
-@app.get("/")
-async def root():
-    return {"message": "File Repository API - No Auth Required"}
